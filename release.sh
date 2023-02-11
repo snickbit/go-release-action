@@ -24,7 +24,7 @@ if [ -n "${INPUT_ASSET_NAME}" ]; then
 fi
 
 # prompt error if non-supported event
-ALLOWED_EVENTS=("release" "push" "workflow_dispatch" "workflow_run")
+ALLOWED_EVENTS=("release" "push" "workflow_dispatch" "workflow_run" "pull_request")
 if [[ "${ALLOWED_EVENTS[*]}" =~ $GITHUB_EVENT_NAME ]]; then
 	echo "Event: ${GITHUB_EVENT_NAME}"
 else
@@ -78,6 +78,11 @@ if [[ ${INPUT_BUILD_COMMAND} =~ ^make.* ]]; then
 	fi
 else
 	GOAMD64=${GOAMD64_FLAG} GOOS="${INPUT_GOOS}" GOARCH="${INPUT_GOARCH}" "${INPUT_BUILD_COMMAND}" -o "${BUILD_ARTIFACTS_FOLDER}"/"${BINARY_NAME}""${EXT}" "${INPUT_BUILD_FLAGS}" "${LDFLAGS_PREFIX}" "${INPUT_LDFLAGS}"
+fi
+
+if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+  # skip upload-asset, compression for pull_request event
+  exit 0
 fi
 
 # executable compression
