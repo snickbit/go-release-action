@@ -24,17 +24,12 @@ if [ -n "${INPUT_ASSET_NAME}" ]; then
 fi
 
 # prompt error if non-supported event
-if [ "${GITHUB_EVENT_NAME}" == 'release' ]; then
-    echo "Event: ${GITHUB_EVENT_NAME}"
-elif [ "${GITHUB_EVENT_NAME}" == 'push' ]; then
-    echo "Event: ${GITHUB_EVENT_NAME}"
-elif [ "${GITHUB_EVENT_NAME}" == 'workflow_dispatch' ]; then
-    echo "Event: ${GITHUB_EVENT_NAME}"
-elif [ "${GITHUB_EVENT_NAME}" == 'workflow_run' ]; then
-    echo "Event: ${GITHUB_EVENT_NAME}"
+ALLOWED_EVENTS=("release" "push" "workflow_dispatch" "workflow_run")
+if [[ "${ALLOWED_EVENTS[*]}" =~ $GITHUB_EVENT_NAME ]]; then
+	echo "Event: ${GITHUB_EVENT_NAME}"
 else
-    echo "Unsupported event: ${GITHUB_EVENT_NAME}!"
-    exit 1
+	echo "Unsupported event: ${GITHUB_EVENT_NAME}!"
+	exit 1
 fi
 
 # execute pre-command if exist, e.g. `go get -v ./...`
